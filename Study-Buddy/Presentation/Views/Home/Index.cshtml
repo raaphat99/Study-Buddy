@@ -1,0 +1,11 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+
+<div class="container">
+    <h1 class="display-4">Home Page</h1>
+    @foreach (KeyValuePair<int, string> room in ViewBag.Rooms)
+    {
+        <p>@room.Key-- <a asp-controller="Home" asp-action="Details" asp-route-id="@room.Key">@room.Value</a></p>
+    }
+</div>
