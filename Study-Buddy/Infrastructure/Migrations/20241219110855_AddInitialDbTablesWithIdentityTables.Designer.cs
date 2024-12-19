@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationContext))]
-    [Migration("20241218195809_AddDbTablesWithIdentityTables")]
-    partial class AddDbTablesWithIdentityTables
+    [Migration("20241219110855_AddInitialDbTablesWithIdentityTables")]
+    partial class AddInitialDbTablesWithIdentityTables
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -21,6 +21,9 @@ namespace Infrastructure.Migrations
 #pragma warning disable 612, 618
             modelBuilder
                 .HasAnnotation("ProductVersion", "8.0.11")
+                .HasAnnotation("Proxies:ChangeTracking", false)
+                .HasAnnotation("Proxies:CheckEquality", false)
+                .HasAnnotation("Proxies:LazyLoading", true)
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -71,15 +74,13 @@ namespace Infrastructure.Migrations
 
                     b.Property<string>("UserId")
                         .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
                     b.HasIndex("ApplicationUserId");
 
                     b.HasIndex("RoomId");
-
-                    b.HasIndex("UserId");
 
                     b.ToTable("Messages");
                 });
@@ -112,15 +113,15 @@ namespace Infrastructure.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("UserId")
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
                     b.HasIndex("ApplicationUserId");
 
-                    b.HasIndex("TopicId");
-
-                    b.HasIndex("UserId");
+                    b.HasIndex("TopicId")
+                        .IsUnique()
+                        .HasFilter("[TopicId] IS NOT NULL");
 
                     b.ToTable("Rooms");
                 });
@@ -141,24 +142,6 @@ namespace Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Topics");
-                });
-
-            modelBuilder.Entity("Domain.Models.User", b =>
-                {
-                    b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("Email")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Username")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("User");
                 });
 
             modelBuilder.Entity("Infrastructure.Identity.ApplicationUser", b =>
@@ -371,15 +354,7 @@ namespace Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Domain.Models.User", "User")
-                        .WithMany("Messages")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.Navigation("Room");
-
-                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Domain.Models.Room", b =>
@@ -389,16 +364,10 @@ namespace Infrastructure.Migrations
                         .HasForeignKey("ApplicationUserId");
 
                     b.HasOne("Domain.Models.Topic", "Topic")
-                        .WithMany()
-                        .HasForeignKey("TopicId");
-
-                    b.HasOne("Domain.Models.User", "User")
-                        .WithMany("Rooms")
-                        .HasForeignKey("UserId");
+                        .WithOne("Room")
+                        .HasForeignKey("Domain.Models.Room", "TopicId");
 
                     b.Navigation("Topic");
-
-                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -457,11 +426,10 @@ namespace Infrastructure.Migrations
                     b.Navigation("Messages");
                 });
 
-            modelBuilder.Entity("Domain.Models.User", b =>
+            modelBuilder.Entity("Domain.Models.Topic", b =>
                 {
-                    b.Navigation("Messages");
-
-                    b.Navigation("Rooms");
+                    b.Navigation("Room")
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Infrastructure.Identity.ApplicationUser", b =>

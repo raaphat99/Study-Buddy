@@ -13,15 +13,15 @@ namespace Domain.Models
         [Key]
         public int Id { get; set; }
         public string Body { get; set; }
-        public DateTime Updated { get; set; } = DateTime.Now;
-        public DateTime Created { get; set; } = DateTime.Now;
+        public DateTime Updated { get; set; }
+        public DateTime Created { get; set; }
 
         [ForeignKey("User")]
         public string UserId { get; set; }
-        public User User { get; set; }
+        public virtual User User { get; set; }
 
         [ForeignKey("Room")]
         public int RoomId { get; set; }
-        public Room Room { get; set; }
+        public virtual Room Room { get; set; }
     }
 }

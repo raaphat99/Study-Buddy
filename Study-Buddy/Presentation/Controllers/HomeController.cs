@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Presentation.Controllers
@@ -26,6 +27,7 @@ namespace Presentation.Controllers
             return View();
         }
 
+        [Authorize]
         public IActionResult Details(int id)
         {
             KeyValuePair<int, string>? result = null;

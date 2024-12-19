@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class AddDbTablesWithIdentityTables : Migration
+    public partial class AddInitialDbTablesWithIdentityTables : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -75,19 +75,6 @@ namespace Infrastructure.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Topics", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "User",
-                columns: table => new
-                {
-                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    Username = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Email = table.Column<string>(type: "nvarchar(max)", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_User", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -206,7 +193,7 @@ namespace Infrastructure.Migrations
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Updated = table.Column<DateTime>(type: "datetime2", nullable: false),
                     Created = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    UserId = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     TopicId = table.Column<int>(type: "int", nullable: true),
                     ApplicationUserId = table.Column<string>(type: "nvarchar(450)", nullable: true)
                 },
@@ -223,11 +210,6 @@ namespace Infrastructure.Migrations
                         column: x => x.TopicId,
                         principalTable: "Topics",
                         principalColumn: "Id");
-                    table.ForeignKey(
-                        name: "FK_Rooms_User_UserId",
-                        column: x => x.UserId,
-                        principalTable: "User",
-                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -239,7 +221,7 @@ namespace Infrastructure.Migrations
                     Body = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Updated = table.Column<DateTime>(type: "datetime2", nullable: false),
                     Created = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    UserId = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     RoomId = table.Column<int>(type: "int", nullable: false),
                     ApplicationUserId = table.Column<string>(type: "nvarchar(450)", nullable: true)
                 },
@@ -255,12 +237,6 @@ namespace Infrastructure.Migrations
                         name: "FK_Messages_Rooms_RoomId",
                         column: x => x.RoomId,
                         principalTable: "Rooms",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_Messages_User_UserId",
-                        column: x => x.UserId,
-                        principalTable: "User",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -315,11 +291,6 @@ namespace Infrastructure.Migrations
                 column: "RoomId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Messages_UserId",
-                table: "Messages",
-                column: "UserId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_Rooms_ApplicationUserId",
                 table: "Rooms",
                 column: "ApplicationUserId");
@@ -327,12 +298,9 @@ namespace Infrastructure.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_Rooms_TopicId",
                 table: "Rooms",
-                column: "TopicId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Rooms_UserId",
-                table: "Rooms",
-                column: "UserId");
+                column: "TopicId",
+                unique: true,
+                filter: "[TopicId] IS NOT NULL");
         }
 
         /// <inheritdoc />
@@ -370,9 +338,6 @@ namespace Infrastructure.Migrations
 
             migrationBuilder.DropTable(
                 name: "Topics");
-
-            migrationBuilder.DropTable(
-                name: "User");
         }
     }
 }

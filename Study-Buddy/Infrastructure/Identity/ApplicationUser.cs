@@ -12,7 +12,7 @@ namespace Infrastructure.Identity
     public class ApplicationUser : IdentityUser
     {
         // Additional custom properties specific to the application can go here
-        public ICollection<Room> Rooms { get; set; } = new List<Room>();
-        public ICollection<Message> Messages { get; set; } = new List<Message>();
+        public virtual ICollection<Room> Rooms { get; set; } = new List<Room>();
+        public virtual ICollection<Message> Messages { get; set; } = new List<Message>();
     }
 }

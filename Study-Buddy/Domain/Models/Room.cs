@@ -14,17 +14,17 @@ namespace Domain.Models
         public int Id { get; set; }
         public string Name { get; set; }
         public string? Description { get; set; }
-        public DateTime Updated { get; set; } = DateTime.Now;
-        public DateTime Created { get; set; } = DateTime.Now;
+        public DateTime Updated { get; set; }
+        public DateTime Created { get; set; }
 
         [ForeignKey("User")]
         public string? UserId { get; set; }
-        public User User { get; set; }
+        public virtual User User { get; set; }
 
         [ForeignKey("Topic")]
         public int? TopicId { get; set; }
-        public Topic? Topic { get; set; }
-        public ICollection<Message> Messages { get; set; } = new List<Message>();
+        public virtual Topic? Topic { get; set; }
+        public virtual ICollection<Message> Messages { get; set; } = new List<Message>();
 
     }
 }

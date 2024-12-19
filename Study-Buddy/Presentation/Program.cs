@@ -2,8 +2,12 @@ using Application.Interfaces.IRepositories;
 using Application.Interfaces.IServices;
 using Application.Services;
 using Infrastructure.Data;
+using Infrastructure.Identity;
+using Infrastructure.Interceptors;
 using Infrastructure.Repositories;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using System.Xml.Linq;
 
 namespace Presentation
 {
@@ -16,15 +20,24 @@ namespace Presentation
             // Add services to the container.
             builder.Services.AddControllersWithViews();
 
-            // Register application context with the connection string
+            // Register application context with lazy loading
             builder.Services.AddDbContext<ApplicationContext>(options =>
             {
-                options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
+                options.AddInterceptors(new AuditInterceptor());
+
+                options.UseLazyLoadingProxies()
+                       .UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
             });
 
             // Register Repositories (Data Stores)
             builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
             builder.Services.AddScoped<IDeveloperRepository, DeveloperRepository>();
+
+            // Register Identity Service
+            builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
+            {
+                options.Password.RequireUppercase = false;
+            }).AddEntityFrameworkStores<ApplicationContext>();
 
             // Register Services (Application Specific Logic)
             builder.Services.AddScoped<IDeveloperService, DeveloperService>();
@@ -43,6 +56,8 @@ namespace Presentation
             app.UseStaticFiles();
 
             app.UseRouting();
+
+            app.UseAuthentication();
 
             app.UseAuthorization();
 
