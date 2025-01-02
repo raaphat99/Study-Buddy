@@ -2,6 +2,17 @@
 @model IEnumerable<RoomDto>;
 @{
     ViewData["Title"] = "Home Page";
+    var currentUserId = ViewBag.UserId as string;
+}
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div id="success-alert" class="alert alert-success">@TempData["SuccessMessage"]</div>
+}
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div id="error-alert" class="alert alert-danger">@TempData["ErrorMessage"]</div>
 }
 
 <header id="header">
@@ -39,10 +50,13 @@
         @foreach (var room in Model)
         {
             <div id="room" class="mb-2">
-                <div>
-                    <a class="btn btn-info" asp-controller="Home" asp-action="Edit" asp-route-id="@room.Id">Edit</a>
-                    <a class="btn btn-danger" asp-controller="Home" asp-action="Delete" asp-route-id="@room.Id">Delete</a>
-                </div>
+                @if (room.HostId == currentUserId)
+                {
+                    <div>
+                        <a class="btn btn-info" asp-controller="Home" asp-action="Edit" asp-route-id="@room.Id">Edit</a>
+                        <a class="btn btn-danger" asp-controller="Home" asp-action="Delete" asp-route-id="@room.Id">Delete</a>
+                    </div>
+                } 
                 <p>@room.HostUserName</p>
                 <p>@room.Id-- <a asp-controller="Home" asp-action="Details" asp-route-id="@room.Id">@room.Name</a></p>
                 <p>@room.TopicName</p>
@@ -52,3 +66,27 @@
 
 </div>
 
+
+<script>
+    // Wait for the DOM to fully load
+    document.addEventListener("DOMContentLoaded", function () {
+        // Hide the success alert after 3 seconds
+        const successAlert = document.getElementById("success-alert");
+        if (successAlert) {
+            setTimeout(() => {
+                successAlert.style.transition = "opacity 0.5s ease"; // Smooth fade-out
+                successAlert.style.opacity = "0"; // Start fade-out
+                setTimeout(() => successAlert.remove(), 500); // Remove from the DOM after fade-out completes
+            }, 3000);
+        }
+
+        const errorAlert = document.getElementById("error-alert");
+        if (errorAlert) {
+            setTimeout(() => {
+                errorAlert.style.transition = "opacity 0.5s ease";
+                errorAlert.style.opacity = "0";
+                setTimeout(() => errorAlert.remove(), 500);
+            }, 5000);
+        }
+    });
+</script>

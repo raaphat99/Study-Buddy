@@ -53,6 +53,7 @@ namespace Application.Services
             {
                 Id = room.Id,
                 Name = room.Name,
+                HostId = room.User.Id,
                 TopicName = room.Topic.Name,
                 HostUserName = room.User.UserName
             });
@@ -71,9 +72,12 @@ namespace Application.Services
             await _roomRepository.AddAsync(newRoom);
         }
 
-        public async Task UpdateAsync(int id, RoomCreateDto roomDto)
+        public async Task UpdateAsync(int id, RoomCreateDto roomDto, string loggedUserId)
         {
             var room = await _roomRepository.GetByIdAsync(id);
+
+            if (room.UserId != loggedUserId)
+                throw new UnauthorizedAccessException("You do not have permission to edit this room");
 
             room.UserId = roomDto.HostId;
             room.Name = roomDto.Name;
@@ -83,9 +87,13 @@ namespace Application.Services
             _roomRepository.Update(room);
         }
 
-        public async Task DeleteAsync(int id)
+        public async Task DeleteAsync(int id, string loggedUserId)
         {
             Room room = await _roomRepository.GetByIdAsync(id);
+
+            if (room.UserId != loggedUserId)
+                throw new UnauthorizedAccessException("You do not have permission to delete this room");
+
             _roomRepository.Remove(room);
         }
 

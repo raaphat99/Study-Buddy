@@ -3,9 +3,20 @@
 }
 
 <div class="container text-center">
-    <div class="my-4">
-        <h1>Access Denied</h1>
-        <p>Sorry, you do not have permission to access this page.</p>
-        <a asp-controller="Account" asp-action="Login">Go to Login Page</a>
-    </div>
+
+    @if (TempData["UnauthorizedAccess"] != null)
+    {
+        <div class="alert alert-danger">@TempData["UnauthorizedAccess"]</div>
+        <a asp-controller="Home" asp-action="Index">Back to Home Page</a>
+    }
+    else
+    {
+        <div class="my-4">
+            <h1>Access Denied</h1>
+            <p>Sorry, you do not have permission to access this page.</p>
+            <a asp-controller="Account" asp-action="Login">Go to Login Page</a>
+        </div>
+    }
+
+
 </div>

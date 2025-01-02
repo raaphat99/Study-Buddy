@@ -10,9 +10,11 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Presentation.ViewModels;
+using System.Security.Claims;
 
 namespace Presentation.Controllers
 {
+    [Authorize]
     public class HomeController : Controller
     {
         private readonly IUnitOfWork _unitOfWork;
@@ -29,15 +31,19 @@ namespace Presentation.Controllers
             _userManager = userManager;
         }
 
+        [AllowAnonymous]
         [HttpGet]
         public async Task<IActionResult> Index(string searchQuery)
         {
-            ViewBag.SearchQuery = searchQuery;
+            ViewBag.UserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             ViewBag.Topics = await _topicService.GetAllTopicsAsync();
+            ViewBag.SearchQuery = searchQuery;
+
             IEnumerable<RoomDto> rooms = await _roomService.FilterRoomsAsync(searchQuery);
             return View(rooms);
         }
 
+        [AllowAnonymous]
         [HttpGet]
         public async Task<IActionResult> Details(int id)
         {
@@ -63,6 +69,7 @@ namespace Presentation.Controllers
 
             await _roomService.CreateAsync(roomDto);
             await _unitOfWork.CompleteAsync();
+            TempData["SuccessMessage"] = "Room created successfully!";
             return RedirectToAction(nameof(Index));
         }
 
@@ -92,11 +99,25 @@ namespace Presentation.Controllers
             if (!ModelState.IsValid)
                 return View("Edit", roomDto);
 
-            await _roomService.UpdateAsync(id, roomDto);
+            // Retrieves the unique identifier of the currently authenticated user from their claims
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            try
+            {
+                await _roomService.UpdateAsync(id, roomDto, userId);
+            }
+            catch (UnauthorizedAccessException)
+            {
+                TempData["UnauthorizedAccess"] = "Access Forbidden! You don't have permission to edit this room.";
+                return RedirectToAction("AccessDenied", "Account");
+            }
+
             await _unitOfWork.CompleteAsync();
+            TempData["SuccessMessage"] = "Room updated successfully!";
             return RedirectToAction(nameof(Index));
         }
 
+        [HttpGet]
         public async Task<IActionResult> Delete(int id)
         {
             var room = await _roomService.GetByIdAsync(id);
@@ -123,11 +144,24 @@ namespace Presentation.Controllers
         [HttpPost]
         public async Task<IActionResult> Destroy(int id)
         {
-            await _roomService.DeleteAsync(id);
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            try
+            {
+                await _roomService.DeleteAsync(id, userId);
+            }
+            catch (UnauthorizedAccessException)
+            {
+                TempData["UnauthorizedAccess"] = "Access Forbidden! You don't have permission to delete this room.";
+                return RedirectToAction("AccessDenied", "Account");
+            }
+
             await _unitOfWork.CompleteAsync();
+            TempData["SuccessMessage"] = "Room deleted successfully!";
             return RedirectToAction(nameof(Index));
         }
 
+        [AllowAnonymous]
         public IActionResult Privacy()
         {
             return View();

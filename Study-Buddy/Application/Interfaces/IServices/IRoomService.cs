@@ -14,8 +14,8 @@ namespace Application.Interfaces.IServices
         Task<IEnumerable<RoomDto>> GetAllRoomsWithDetailsAsync();
         Task<IEnumerable<RoomDto>> FilterRoomsAsync(string searchQuery);
         Task CreateAsync(RoomCreateDto roomDto);
-        Task UpdateAsync(int id, RoomCreateDto roomDto);
-        Task DeleteAsync(int id);
+        Task UpdateAsync(int id, RoomCreateDto roomDto, string loggedUserId);
+        Task DeleteAsync(int id, string loggedUserId);
 
     }
 }
