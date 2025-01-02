@@ -1,11 +1,27 @@
-﻿@{
+﻿@using Application.DTOs.RoomDTOs
+@model IEnumerable<RoomDto>;
+@{
     ViewData["Title"] = "Home Page";
 }
 
 <div class="container">
+
     <h1 class="display-4">Home Page</h1>
-    @foreach (KeyValuePair<int, string> room in ViewBag.Rooms)
+    <div class="mb-2">
+        <a class="btn btn-success" asp-controller="Home" asp-action="Create">Create Room</a>
+    </div>
+
+    @foreach (var room in Model)
     {
-        <p>@room.Key-- <a asp-controller="Home" asp-action="Details" asp-route-id="@room.Key">@room.Value</a></p>
+        <div id="room" class="mb-2">
+            <div>
+                <a class="btn btn-info" asp-controller="Home" asp-action="Edit" asp-route-id="@room.Id">Edit</a>
+                <a class="btn btn-danger" asp-controller="Home" asp-action="Delete" asp-route-id="@room.Id">Delete</a>
+            </div>
+            <p>@room.HostUserName</p>
+            <p>@room.Id-- <a asp-controller="Home" asp-action="Details" asp-route-id="@room.Id">@room.Name</a></p>
+            <p>@room.TopicName</p>
+        </div>
     }
+
 </div>

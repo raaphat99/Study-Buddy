@@ -1,7 +1,11 @@
-﻿@{
+﻿@using Application.DTOs.RoomDTOs
+@model RoomDto
+
+@{
     ViewData["Title"] = "Details";
 }
 
 <div class="container">
-    <p>@ViewBag.Room.Value</p>
+    <h3>@Model.Name</h3>
+    <p>@Model.Description</p>
 </div>

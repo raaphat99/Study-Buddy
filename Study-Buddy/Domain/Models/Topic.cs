@@ -15,6 +15,6 @@ namespace Domain.Models
         [Required]
         [StringLength(200, ErrorMessage = "Topic name is too long.")]
         public string Name { get; set; }
-        public virtual Room Room { get; set; }
+        public virtual ICollection<Room> Rooms { get; set; }
     }
 }

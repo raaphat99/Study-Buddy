@@ -1,0 +1,12 @@
+﻿@{
+    ViewData["Title"] = "Edit";
+}
+
+<partial name="_RoomForm" model="Model" />
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
+

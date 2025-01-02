@@ -1,10 +1,11 @@
 using Application.Interfaces.IRepositories;
 using Application.Interfaces.IServices;
+using Application.Interfaces.UOW;
 using Application.Services;
+using Domain.Models;
 using Infrastructure.Data;
-using Infrastructure.Identity;
-using Infrastructure.Interceptors;
 using Infrastructure.Repositories;
+using Infrastructure.UnitOfWork;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using System.Xml.Linq;
@@ -20,18 +21,12 @@ namespace Presentation
             // Add services to the container.
             builder.Services.AddControllersWithViews();
 
-            // Register application context with lazy loading
+            // Register Application Context with lazy loading
             builder.Services.AddDbContext<ApplicationContext>(options =>
             {
-                options.AddInterceptors(new AuditInterceptor());
-
                 options.UseLazyLoadingProxies()
                        .UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
             });
-
-            // Register Repositories (Data Stores)
-            builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
-            builder.Services.AddScoped<IDeveloperRepository, DeveloperRepository>();
 
             // Register Identity Service
             builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
@@ -39,8 +34,24 @@ namespace Presentation
                 options.Password.RequireUppercase = false;
             }).AddEntityFrameworkStores<ApplicationContext>();
 
+            // Register Repositories (Data Stores)
+            builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
+            builder.Services.AddScoped<IRoomRepository, RoomRepository>();
+            builder.Services.AddScoped<ITopicRepository, TopicRepository>();
+
+
             // Register Services (Application Specific Logic)
-            builder.Services.AddScoped<IDeveloperService, DeveloperService>();
+            builder.Services.AddScoped(typeof(IGenericService<>), typeof(GenericService<>));
+            builder.Services.AddScoped<IRoomService, RoomService>();
+            builder.Services.AddScoped<ITopicService, TopicService>();
+
+
+            // Register UnitOfWork
+            builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+
+            // Register AutoMapper
+            builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+
 
             var app = builder.Build();
 

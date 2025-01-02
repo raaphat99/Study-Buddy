@@ -7,8 +7,7 @@ using System.Threading.Tasks;
 
 namespace Application.Interfaces.IRepositories
 {
-    public interface IDeveloperRepository : IGenericRepository<Developer>
+    public interface ITopicRepository : IGenericRepository<Topic>
     {
-        IEnumerable<Developer> GetPopularDevelopers(int count);
     }
 }

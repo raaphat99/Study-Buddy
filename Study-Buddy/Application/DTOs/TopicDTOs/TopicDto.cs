@@ -1,15 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Domain.Models
+namespace Application.DTOs.TopicDTOs
 {
-    public class Developer
+    public class TopicDto
     {
         public int Id { get; set; }
         public string Name { get; set; }
-        public int Followers { get; set; }
     }
 }

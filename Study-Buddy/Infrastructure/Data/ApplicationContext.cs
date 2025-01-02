@@ -1,5 +1,4 @@
 ﻿using Domain.Models;
-using Infrastructure.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -16,7 +15,6 @@ namespace Infrastructure.Data
     public class ApplicationContext : IdentityDbContext<ApplicationUser>
     {
         private readonly IConfiguration _configuration;
-        public DbSet<Developer> Developers { get; set; }
         public DbSet<Room> Rooms { get; set; }
         public DbSet<Topic> Topics { get; set; }
         public DbSet<Message> Messages { get; set; }
@@ -29,8 +27,8 @@ namespace Infrastructure.Data
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             optionsBuilder
-                .UseLazyLoadingProxies()
-                .UseSqlServer(_configuration.GetConnectionString("DefaultConnection"));
+               .UseLazyLoadingProxies()
+               .UseSqlServer(_configuration.GetConnectionString("DefaultConnection"));
 
             base.OnConfiguring(optionsBuilder);
         }

@@ -13,13 +13,25 @@ namespace Infrastructure.Repositories
     public class GenericRepository<T> : IGenericRepository<T> where T : class
     {
         protected readonly ApplicationContext _context;
+        protected readonly DbSet<T> _dbSet;
         public GenericRepository(ApplicationContext context)
         {
             _context = context;
+            _dbSet = _context.Set<T>();
         }
-        public async Task<T> GetByIdAsync(int id)
+        public async Task<T> GetByIdAsync(int id, params Expression<Func<T, object>>[] includes)
         {
-            var entity = await _context.Set<T>().FindAsync(id);
+            IQueryable<T> query = _dbSet;
+
+            if (includes != null && includes.Length != 0)
+            {
+                foreach (var include in includes)
+                {
+                    query = query.Include(include);
+                }
+            }
+
+            var entity = await query.FirstOrDefaultAsync(entity => EF.Property<int>(entity, "Id") == id);
 
             if (entity == null)
                 throw new KeyNotFoundException($"Entity with ID {id} not found.");
@@ -27,14 +39,34 @@ namespace Infrastructure.Repositories
             return entity;
         }
 
-        public async Task<IEnumerable<T>> GetAllAsync()
+        public virtual async Task<IEnumerable<T>> GetAllAsync(params Expression<Func<T, object>>[] includes)
         {
-            return await _context.Set<T>().AsNoTracking().ToListAsync();
+            IQueryable<T> query = _dbSet;
+
+            if (includes != null && includes.Length != 0)
+            {
+                foreach (var include in includes)
+                {
+                    query = query.Include(include);
+                }
+            }
+
+            return await query.AsNoTracking().ToListAsync();
         }
 
-        public IQueryable<T> Find(Expression<Func<T, bool>> expression)
+        public IQueryable<T> Find(Expression<Func<T, bool>> expression, params Expression<Func<T, object>>[] includes)
         {
-            return _context.Set<T>().AsNoTracking().Where(expression);
+            IQueryable<T> query = _dbSet;
+
+            if (includes != null && includes.Length != 0)
+            {
+                foreach (var include in includes)
+                {
+                    query = query.Include(include);
+                }
+            }
+
+            return query.AsNoTracking().Where(expression);
         }
 
         public async Task AddAsync(T entity)
@@ -55,7 +87,7 @@ namespace Infrastructure.Repositories
             if (entity == null)
                 throw new ArgumentNullException(nameof(entity));
 
-            _context.Set<T>().Remove(entity);
+            _dbSet.Remove(entity);
         }
 
         public void RemoveRange(IEnumerable<T> entities)

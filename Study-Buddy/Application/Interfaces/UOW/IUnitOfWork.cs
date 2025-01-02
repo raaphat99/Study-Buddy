@@ -9,7 +9,9 @@ namespace Application.Interfaces.UOW
 {
     public interface IUnitOfWork : IDisposable
     {
-        IDeveloperRepository Developers { get; }
+        IRoomRepository Rooms { get; }
+        IMessageRepository Messages { get; }
+        ITopicRepository Topics { get; }
         Task<int> CompleteAsync();
     }
 }

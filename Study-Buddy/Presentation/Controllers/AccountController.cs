@@ -1,4 +1,4 @@
-﻿using Infrastructure.Identity;
+﻿using Domain.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Presentation.ViewModels;

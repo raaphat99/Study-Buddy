@@ -18,13 +18,19 @@ namespace Domain.Models
         public DateTime Created { get; set; }
 
         [ForeignKey("User")]
-        public string? UserId { get; set; }
-        public virtual User User { get; set; }
+        public string UserId { get; set; }
+        public virtual ApplicationUser User { get; set; }
 
         [ForeignKey("Topic")]
-        public int? TopicId { get; set; }
-        public virtual Topic? Topic { get; set; }
+        public int TopicId { get; set; }
+        public virtual Topic Topic { get; set; }
         public virtual ICollection<Message> Messages { get; set; } = new List<Message>();
+
+        public Room()
+        {
+            Created = DateTime.UtcNow;
+            Updated = DateTime.UtcNow;
+        }
 
     }
 }
