@@ -38,5 +38,23 @@ namespace Infrastructure.Repositories
                 .ThenByDescending(room => room.Created)
                 .ToListAsync();
         }
+
+        public async Task<IEnumerable<Room>> GetFilteredRoomsAsync(string searchQuery)
+        {
+            IQueryable<Room> query = _dbSet;
+
+            query.Include(room => room.User)
+                 .Include(room => room.Topic);
+
+            if (!string.IsNullOrEmpty(searchQuery))
+            {
+                query = query.Where(room =>
+                            room.Name.Contains(searchQuery) ||
+                            room.User.UserName.Contains(searchQuery) ||
+                            room.Topic.Name.Contains(searchQuery));
+            }
+
+            return await query.AsNoTracking().ToListAsync();
+        }
     }
 }

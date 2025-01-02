@@ -46,6 +46,18 @@ namespace Application.Services
             });
         }
 
+        public async Task<IEnumerable<RoomDto>> FilterRoomsAsync(string searchQuery)
+        {
+            var rooms = await _roomRepository.GetFilteredRoomsAsync(searchQuery);
+            return rooms.Select(room => new RoomDto
+            {
+                Id = room.Id,
+                Name = room.Name,
+                TopicName = room.Topic.Name,
+                HostUserName = room.User.UserName
+            });
+        }
+
         public async Task CreateAsync(RoomCreateDto roomDto)
         {
             Room newRoom = new Room
@@ -76,5 +88,6 @@ namespace Application.Services
             Room room = await _roomRepository.GetByIdAsync(id);
             _roomRepository.Remove(room);
         }
+
     }
 }

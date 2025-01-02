@@ -4,24 +4,51 @@
     ViewData["Title"] = "Home Page";
 }
 
-<div class="container">
+<header id="header">
+    <a asp-controller="Home" asp-action="Index"><strong>LOGO</strong></a>
+    <form asp-controller="Home" asp-action="Index" method="get">
+        <input type="text" name="searchQuery" placeholder="Search Rooms" value="@ViewBag.SearchQuery"/>
+        <button type="submit">Search</button>
+    </form>
+</header>
 
-    <h1 class="display-4">Home Page</h1>
-    <div class="mb-2">
-        <a class="btn btn-success" asp-controller="Home" asp-action="Create">Create Room</a>
-    </div>
+<hr />
 
-    @foreach (var room in Model)
-    {
-        <div id="room" class="mb-2">
-            <div>
-                <a class="btn btn-info" asp-controller="Home" asp-action="Edit" asp-route-id="@room.Id">Edit</a>
-                <a class="btn btn-danger" asp-controller="Home" asp-action="Delete" asp-route-id="@room.Id">Delete</a>
-            </div>
-            <p>@room.HostUserName</p>
-            <p>@room.Id-- <a asp-controller="Home" asp-action="Details" asp-route-id="@room.Id">@room.Name</a></p>
-            <p>@room.TopicName</p>
+<div class="wrapper">
+
+    <aside class="sidebar">
+        <h2>Browse Topics</h2>
+        <hr />
+        
+        <div id="sidebar-content">
+            <a asp-controller="Home" asp-action="Index">All</a>
+            @foreach (var topic in ViewBag.Topics)
+            {
+                <a asp-controller="Home" asp-action="Index" asp-route-searchQuery="@topic.Name">@topic.Name</a>
+            }
         </div>
-    }
+
+    </aside>
+
+    <main class="content">
+        <h2>3 rooms available</h2>
+        <div class="mb-2">
+            <a class="btn btn-success" asp-controller="Home" asp-action="Create">Create Room</a>
+        </div>
+
+        @foreach (var room in Model)
+        {
+            <div id="room" class="mb-2">
+                <div>
+                    <a class="btn btn-info" asp-controller="Home" asp-action="Edit" asp-route-id="@room.Id">Edit</a>
+                    <a class="btn btn-danger" asp-controller="Home" asp-action="Delete" asp-route-id="@room.Id">Delete</a>
+                </div>
+                <p>@room.HostUserName</p>
+                <p>@room.Id-- <a asp-controller="Home" asp-action="Details" asp-route-id="@room.Id">@room.Name</a></p>
+                <p>@room.TopicName</p>
+            </div>
+        }
+    </main>
 
 </div>
+

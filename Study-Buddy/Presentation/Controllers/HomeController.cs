@@ -30,9 +30,11 @@ namespace Presentation.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string searchQuery)
         {
-            var rooms = await _roomService.GetAllRoomsWithDetailsAsync();
+            ViewBag.SearchQuery = searchQuery;
+            ViewBag.Topics = await _topicService.GetAllTopicsAsync();
+            IEnumerable<RoomDto> rooms = await _roomService.FilterRoomsAsync(searchQuery);
             return View(rooms);
         }
 

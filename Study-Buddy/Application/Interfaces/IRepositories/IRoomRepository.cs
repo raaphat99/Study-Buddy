@@ -9,5 +9,6 @@ namespace Application.Interfaces.IRepositories
 {
     public interface IRoomRepository : IGenericRepository<Room>
     {
+        Task<IEnumerable<Room>> GetFilteredRoomsAsync(string searchQuery);
     }
 }
