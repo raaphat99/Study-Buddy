@@ -1,3 +1,4 @@
+using Application.DTOs.MessageDTOs;
 using Application.DTOs.RoomDTOs;
 using Application.Interfaces.IRepositories;
 using Application.Interfaces.IServices;
@@ -15,18 +16,20 @@ using System.Security.Claims;
 namespace Presentation.Controllers
 {
     [Authorize]
-    public class HomeController : Controller
+    public class RoomController : Controller
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IRoomService _roomService;
         private readonly ITopicService _topicService;
+        private readonly IMessageService _messageService;
         private readonly UserManager<ApplicationUser> _userManager;
 
-        public HomeController(IUnitOfWork unitOfWork, IRoomService roomService,
+        public RoomController(IUnitOfWork unitOfWork, IRoomService roomService, IMessageService messageService,
             UserManager<ApplicationUser> userManager, ITopicService topicService)
         {
             _unitOfWork = unitOfWork;
             _roomService = roomService;
+            _messageService = messageService;
             _topicService = topicService;
             _userManager = userManager;
         }
@@ -39,7 +42,10 @@ namespace Presentation.Controllers
             ViewBag.Topics = await _topicService.GetAllTopicsAsync();
             ViewBag.SearchQuery = searchQuery;
 
+
             IEnumerable<RoomDto> rooms = await _roomService.FilterRoomsAsync(searchQuery);
+            ViewBag.RoomCount = rooms.Count();
+
             return View(rooms);
         }
 
@@ -47,8 +53,10 @@ namespace Presentation.Controllers
         [HttpGet]
         public async Task<IActionResult> Details(int id)
         {
-            var room = await _roomService.GetByIdAsync(id);
-            return View(room);
+            ViewBag.UserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            ChatRoomDto chatRoomDto = await _roomService.GetChatRoomDetailsAsync(id);
+
+            return View(new ChatRoomViewModel() { ChatRoomDto = chatRoomDto });
         }
 
         [HttpGet]
@@ -62,15 +70,24 @@ namespace Presentation.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Insert(RoomCreateDto roomDto)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
+            try
+            {
+                await _roomService.CreateAsync(roomDto);
+                await _unitOfWork.CompleteAsync();
+                TempData["SuccessMessage"] = "Room created successfully!";
+                return RedirectToAction(nameof(Index));
+            }
+            catch (Exception)
+            {
+                ViewData["ErrorMessage"] = "Unexpected error has occured while creating a new room!";
+                return View();
+            }
 
-            await _roomService.CreateAsync(roomDto);
-            await _unitOfWork.CompleteAsync();
-            TempData["SuccessMessage"] = "Room created successfully!";
-            return RedirectToAction(nameof(Index));
         }
 
         [HttpGet]
@@ -94,6 +111,7 @@ namespace Presentation.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Update(int id, RoomCreateDto roomDto)
         {
             if (!ModelState.IsValid)
@@ -105,16 +123,20 @@ namespace Presentation.Controllers
             try
             {
                 await _roomService.UpdateAsync(id, roomDto, userId);
+                await _unitOfWork.CompleteAsync();
+                TempData["SuccessMessage"] = "Room updated successfully!";
+                return RedirectToAction(nameof(Index));
             }
             catch (UnauthorizedAccessException)
             {
                 TempData["UnauthorizedAccess"] = "Access Forbidden! You don't have permission to edit this room.";
                 return RedirectToAction("AccessDenied", "Account");
             }
-
-            await _unitOfWork.CompleteAsync();
-            TempData["SuccessMessage"] = "Room updated successfully!";
-            return RedirectToAction(nameof(Index));
+            catch (Exception)
+            {
+                ViewData["ErrorMessage"] = "Unexpected error has occured while updating the room!";
+                return View();
+            }
         }
 
         [HttpGet]
@@ -142,6 +164,7 @@ namespace Presentation.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Destroy(int id)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -149,22 +172,80 @@ namespace Presentation.Controllers
             try
             {
                 await _roomService.DeleteAsync(id, userId);
+                await _unitOfWork.CompleteAsync();
+                TempData["SuccessMessage"] = "Room deleted successfully!";
+                return RedirectToAction(nameof(Index));
             }
             catch (UnauthorizedAccessException)
             {
                 TempData["UnauthorizedAccess"] = "Access Forbidden! You don't have permission to delete this room.";
                 return RedirectToAction("AccessDenied", "Account");
             }
-
-            await _unitOfWork.CompleteAsync();
-            TempData["SuccessMessage"] = "Room deleted successfully!";
-            return RedirectToAction(nameof(Index));
+            catch (Exception)
+            {
+                ViewData["ErrorMessage"] = "Unexpected error has occured while deleting the room!";
+                return View();
+            }
         }
 
         [AllowAnonymous]
         public IActionResult Privacy()
         {
             return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> SendMessage(ChatRoomViewModel chatRoomVM)
+        {
+            MessageCreateDto messageDto = chatRoomVM.MessageCreateDto;
+
+            if (!ModelState.IsValid)
+                return BadRequest("Invalid message!");
+
+            messageDto.UserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            try
+            {
+                await _messageService.CreateAsync(messageDto);
+                await _unitOfWork.CompleteAsync();
+                return RedirectToAction("Details", new { id = messageDto.RoomId });
+            }
+            catch (Exception)
+            {
+                ViewData["ErrorMessage"] = "Unexpected error has occured while sending a message. Please try again.";
+                return View();
+            }
+
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<ActionResult> DeleteMessage(ChatRoomViewModel chatRoomVM)
+        {
+            MessageDeleteDto messageDto = chatRoomVM.MessageDeleteDto;
+
+            if (!ModelState.IsValid)
+                return BadRequest("Invalid message!");
+
+            messageDto.UserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            try
+            {
+                await _messageService.DeleteAsync(messageDto.MessageId, messageDto.UserId);
+                await _unitOfWork.CompleteAsync();
+                return RedirectToAction("Details", new { id = messageDto.RoomId });
+            }
+            catch (UnauthorizedAccessException)
+            {
+                TempData["UnauthorizedAccess"] = "Access Forbidden! You don't have permission to delete this message.";
+                return RedirectToAction("AccessDenied", "Account");
+            }
+            catch (Exception)
+            {
+                ViewData["ErrorMessage"] = "Unexpected error has occured while deleting the message. Please try again.";
+                return View();
+            }
         }
     }
 }

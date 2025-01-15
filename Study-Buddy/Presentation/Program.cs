@@ -38,12 +38,13 @@ namespace Presentation
             builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
             builder.Services.AddScoped<IRoomRepository, RoomRepository>();
             builder.Services.AddScoped<ITopicRepository, TopicRepository>();
-
+            builder.Services.AddScoped<IMessageRepository, MessageRepository>();
 
             // Register Services (Application Specific Logic)
             builder.Services.AddScoped(typeof(IGenericService<>), typeof(GenericService<>));
             builder.Services.AddScoped<IRoomService, RoomService>();
             builder.Services.AddScoped<ITopicService, TopicService>();
+            builder.Services.AddScoped<IMessageService, MessageService>();
 
 
             // Register UnitOfWork
@@ -74,7 +75,7 @@ namespace Presentation
 
             app.MapControllerRoute(
                 name: "default",
-                pattern: "{controller=Home}/{action=Index}/{id?}");
+                pattern: "{controller=Room}/{action=Index}/{id?}");
 
             app.Run();
         }

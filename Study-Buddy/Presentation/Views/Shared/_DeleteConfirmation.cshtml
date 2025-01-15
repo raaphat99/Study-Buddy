@@ -5,6 +5,11 @@
     string refererUrl = ViewBag.RefererUrl;
 }
 
+@if (ViewData["ErrorMessage"] != null)
+{
+    <div id="error-alert" class="alert alert-danger">@ViewData["ErrorMessage"]</div>
+}
+
 <div class="container">
     <h1>Confirm Deletion</h1>
     <p>Are you sure you want to delete this @Model.EntityName?</p>

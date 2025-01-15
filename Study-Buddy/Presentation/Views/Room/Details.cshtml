@@ -1,0 +1,97 @@
+﻿@using Presentation.Utilities
+@model ChatRoomViewModel
+
+@{
+    ViewData["Title"] = "Details";
+    var currentUserId = ViewBag.UserId as string;
+}
+
+@if (ViewData["ErrorMessage"] != null)
+{
+    <div id="error-alert" class="alert alert-danger">@ViewData["ErrorMessage"]</div>
+}
+
+<div class="chat-room-grid-container">
+    <div class="feed">
+        <h2>Feed</h2>
+    </div>
+
+    <div class="chat-room">
+        <div class="room-header">
+            <h3>@Model.ChatRoomDto.Name</h3>
+            <h3>Hosted by: <strong>@Model.ChatRoomDto.HostUserName</strong></h3>
+            <hr />
+            <p>@Model.ChatRoomDto.Description</p>
+        </div>
+
+        <div class="room-body">
+            <div class="message-wrapper">
+                @foreach (var message in Model.ChatRoomDto.Messages)
+                {
+                    @if (User.Identity.IsAuthenticated && message.UserId == currentUserId)
+                    {
+                        <form method="post" asp-action="DeleteMessage">
+                            <input type="hidden" asp-for="MessageDeleteDto.RoomId" value="@Model.ChatRoomDto.RoomId" />
+                            <input type="hidden" asp-for="MessageDeleteDto.MessageId" value="@message.Id" />
+                            <button type="submit" class="btn btn-danger" id="btn-delete">Delete</button>
+                        </form>
+                    }
+                    <small>@message.User.UserName</small>
+                    <small>@TimeSinceFormatter.GetTimeSince(message.Created)</small>
+                    <p>@message.Body</p>
+                }
+            </div>
+
+            @if (User.Identity.IsAuthenticated)
+            {
+                <div class="message-form">
+                    <form method="post" asp-action="SendMessage">
+                        @Html.AntiForgeryToken()
+                        <div asp-validation-summary="All" class="text-danger"></div>
+
+                         <input type="hidden" asp-for="MessageCreateDto.RoomId" value="@Model.ChatRoomDto.RoomId"/>
+                        
+                         <div class="form-group mb-2">
+                            <input type="text" asp-for="MessageCreateDto.Body" placeholder="Type your message..." required />
+                            <span asp-validation-for="MessageCreateDto.Body" class="text-danger"></span>
+                        </div>
+
+                        <button type="submit" class="btn btn-success">Send</button>
+                    </form>
+                </div>
+            }
+        </div>
+    </div>
+
+    <div class="participants">
+        <h2>Participants</h2>
+        <ol>
+            @foreach (var participant in Model.ChatRoomDto.RoomParticipants)
+            {
+                <li>@participant.Participant.UserName</li>
+            }
+        </ol>
+
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
+
+<script>
+    // Wait for the DOM to fully load
+    document.addEventListener("DOMContentLoaded", function () {
+        // Hide the error alert after 3 seconds
+        const errorAlert = document.getElementById("error-alert");
+        if (errorAlert) {
+            setTimeout(() => {
+                errorAlert.style.transition = "opacity 0.5s ease";
+                errorAlert.style.opacity = "0";
+                setTimeout(() => errorAlert.remove(), 500);
+            }, 3000);
+        }
+    });
+</script>

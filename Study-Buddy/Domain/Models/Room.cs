@@ -17,14 +17,15 @@ namespace Domain.Models
         public DateTime Updated { get; set; }
         public DateTime Created { get; set; }
 
-        [ForeignKey("User")]
-        public string UserId { get; set; }
-        public virtual ApplicationUser User { get; set; }
+        [ForeignKey("Host")]
+        public string HostId { get; set; }
+        public virtual ApplicationUser Host { get; set; }
 
         [ForeignKey("Topic")]
         public int TopicId { get; set; }
         public virtual Topic Topic { get; set; }
         public virtual ICollection<Message> Messages { get; set; } = new List<Message>();
+        public virtual ICollection<RoomParticipant> Participants { get; set; } = new List<RoomParticipant>();
 
         public Room()
         {

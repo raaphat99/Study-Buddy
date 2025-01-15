@@ -15,5 +15,7 @@ namespace Application.DTOs.RoomDTOs
         public string TopicName { get; set; }
         public string HostId { get; set; }
         public string HostUserName { get; set; }
+        public DateTime Updated { get; set; }
+        public DateTime Created { get; set; }
     }
 }

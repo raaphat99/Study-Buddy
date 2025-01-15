@@ -1,7 +1,7 @@
 ﻿@using Application.DTOs.RoomDTOs
 @model IEnumerable<RoomDto>;
 @{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "Room Page";
     var currentUserId = ViewBag.UserId as string;
 }
 
@@ -16,8 +16,8 @@
 }
 
 <header id="header">
-    <a asp-controller="Home" asp-action="Index"><strong>LOGO</strong></a>
-    <form asp-controller="Home" asp-action="Index" method="get">
+    <a asp-controller="Room" asp-action="Index"><strong>LOGO</strong></a>
+    <form asp-controller="Room" asp-action="Index" method="get">
         <input type="text" name="searchQuery" placeholder="Search Rooms" value="@ViewBag.SearchQuery"/>
         <button type="submit">Search</button>
     </form>
@@ -32,19 +32,19 @@
         <hr />
         
         <div id="sidebar-content">
-            <a asp-controller="Home" asp-action="Index">All</a>
+            <a asp-controller="Room" asp-action="Index">All</a>
             @foreach (var topic in ViewBag.Topics)
             {
-                <a asp-controller="Home" asp-action="Index" asp-route-searchQuery="@topic.Name">@topic.Name</a>
+                <a asp-controller="Room" asp-action="Index" asp-route-searchQuery="@topic.Name">@topic.Name</a>
             }
         </div>
 
     </aside>
 
     <main class="content">
-        <h2>3 rooms available</h2>
+        <h2>@ViewBag.RoomCount rooms available</h2>
         <div class="mb-2">
-            <a class="btn btn-success" asp-controller="Home" asp-action="Create">Create Room</a>
+            <a class="btn btn-success" asp-controller="Room" asp-action="Create">Create Room</a>
         </div>
 
         @foreach (var room in Model)
@@ -53,12 +53,12 @@
                 @if (room.HostId == currentUserId)
                 {
                     <div>
-                        <a class="btn btn-info" asp-controller="Home" asp-action="Edit" asp-route-id="@room.Id">Edit</a>
-                        <a class="btn btn-danger" asp-controller="Home" asp-action="Delete" asp-route-id="@room.Id">Delete</a>
+                        <a class="btn btn-info" asp-controller="Room" asp-action="Edit" asp-route-id="@room.Id">Edit</a>
+                        <a class="btn btn-danger" asp-controller="Room" asp-action="Delete" asp-route-id="@room.Id">Delete</a>
                     </div>
                 } 
                 <p>@room.HostUserName</p>
-                <p>@room.Id-- <a asp-controller="Home" asp-action="Details" asp-route-id="@room.Id">@room.Name</a></p>
+                <p>@room.Id-- <a asp-controller="Room" asp-action="Details" asp-route-id="@room.Id">@room.Name</a></p>
                 <p>@room.TopicName</p>
             </div>
         }
@@ -86,7 +86,7 @@
                 errorAlert.style.transition = "opacity 0.5s ease";
                 errorAlert.style.opacity = "0";
                 setTimeout(() => errorAlert.remove(), 500);
-            }, 5000);
+            }, 3000);
         }
     });
 </script>

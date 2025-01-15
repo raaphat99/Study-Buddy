@@ -1,24 +1,21 @@
-html {
-    font-size: 14px;
-}
-
-@media (min-width: 768px) {
-    html {
-        font-size: 16px;
-    }
-}
-
-.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-    box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+body, html {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
 }
 
 html {
     position: relative;
     min-height: 100%;
+    font-size: 14px;
 }
 
 body {
     margin-bottom: 60px;
+}
+
+.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
+    box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
 }
 
 #room {
@@ -51,22 +48,51 @@ body {
     flex-direction: column;
 }
 
-#sidebar-content a {
-    display: block;
-    margin-bottom: 10px;
-    text-decoration: none;
-    color: #007bff; 
-}
+    #sidebar-content a {
+        display: block;
+        margin-bottom: 10px;
+        text-decoration: none;
+        color: #007bff;
+    }
 
-#sidebar-content a:hover {
-    color: #0056b3;
-}
+        #sidebar-content a:hover {
+            color: #0056b3;
+        }
 
-.content {
-    background-color: #fff;
+.content, .room-body {
     padding: 1rem;
     overflow-y: auto;
 }
 
+.chat-room-grid-container {
+    display: grid;
+    grid-template-columns: 1fr 2fr 1fr;
+    gap: 10px;
+    height: 100vh;
+    overflow-y: auto;
+}
 
+.feed {
+    background-color: #f0f0f0;
+    padding: 10px;
+}
 
+.chat-room {
+    background-color: #d4edda;
+    padding: 10px;
+}
+
+.participants {
+    background-color: #d1ecf1;
+    padding: 10px;
+}
+
+#btn-delete {
+    padding: 4px !important;
+}
+
+@media (min-width: 768px) {
+    html {
+        font-size: 16px;
+    }
+}

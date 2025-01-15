@@ -1,0 +1,31 @@
+﻿@{
+    ViewData["Title"] = "Edit";
+}
+
+@if (ViewData["ErrorMessage"] != null)
+{
+    <div id="error-alert" class="alert alert-danger">@ViewData["ErrorMessage"]</div>
+}
+
+<partial name="_RoomForm" model="Model" />
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
+
+<script>
+    // Wait for the DOM to fully load
+    document.addEventListener("DOMContentLoaded", function () {
+        // Hide the error alert after 3 seconds
+        const errorAlert = document.getElementById("error-alert");
+        if (errorAlert) {
+            setTimeout(() => {
+                errorAlert.style.transition = "opacity 0.5s ease";
+                errorAlert.style.opacity = "0";
+                setTimeout(() => errorAlert.remove(), 500);
+            }, 3000);
+        }
+    });
+</script>

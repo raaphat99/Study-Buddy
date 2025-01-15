@@ -26,7 +26,7 @@ namespace Application.Services
             var roomDto = new RoomDto
             {
                 Id = room.Id,
-                HostId = room.UserId,
+                HostId = room.HostId,
                 Name = room.Name,
                 Description = room.Description,
                 TopicId = room.TopicId
@@ -36,14 +36,30 @@ namespace Application.Services
 
         public async Task<IEnumerable<RoomDto>> GetAllRoomsWithDetailsAsync()
         {
-            var rooms = await _roomRepository.GetAllAsync(room => room.User, room => room.Topic);
+            var rooms = await _roomRepository.GetAllAsync(room => room.Host, room => room.Topic);
             return rooms.Select(room => new RoomDto
             {
                 Id = room.Id,
                 Name = room.Name,
                 TopicName = room.Topic.Name,
-                HostUserName = room.User.UserName
+                HostUserName = room.Host.UserName,
+                Created = room.Created,
+                Updated = room.Updated
             });
+        }
+
+        public async Task<ChatRoomDto> GetChatRoomDetailsAsync(int id)
+        {
+            var room = await _roomRepository.GetByIdAsync(id, room => room.Host, room => room.Messages, room => room.Participants);
+            return new ChatRoomDto
+            {
+                RoomId = room.Id,
+                HostUserName = room.Host.UserName,
+                Name = room.Name,
+                Description = room.Description,
+                Messages = room.Messages.ToList(),
+                RoomParticipants = room.Participants.ToList()
+            };
         }
 
         public async Task<IEnumerable<RoomDto>> FilterRoomsAsync(string searchQuery)
@@ -53,9 +69,9 @@ namespace Application.Services
             {
                 Id = room.Id,
                 Name = room.Name,
-                HostId = room.User.Id,
+                HostId = room.Host.Id,
                 TopicName = room.Topic.Name,
-                HostUserName = room.User.UserName
+                HostUserName = room.Host.UserName
             });
         }
 
@@ -63,7 +79,7 @@ namespace Application.Services
         {
             Room newRoom = new Room
             {
-                UserId = roomDto.HostId,
+                HostId = roomDto.HostId,
                 Name = roomDto.Name,
                 Description = roomDto.Description,
                 TopicId = roomDto.TopicId
@@ -76,10 +92,10 @@ namespace Application.Services
         {
             var room = await _roomRepository.GetByIdAsync(id);
 
-            if (room.UserId != loggedUserId)
+            if (room.HostId != loggedUserId)
                 throw new UnauthorizedAccessException("You do not have permission to edit this room");
 
-            room.UserId = roomDto.HostId;
+            room.HostId = roomDto.HostId;
             room.Name = roomDto.Name;
             room.Description = roomDto.Description;
             room.TopicId = roomDto.TopicId;
@@ -91,7 +107,7 @@ namespace Application.Services
         {
             Room room = await _roomRepository.GetByIdAsync(id);
 
-            if (room.UserId != loggedUserId)
+            if (room.HostId != loggedUserId)
                 throw new UnauthorizedAccessException("You do not have permission to delete this room");
 
             _roomRepository.Remove(room);

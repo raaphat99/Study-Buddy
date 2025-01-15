@@ -43,14 +43,14 @@ namespace Infrastructure.Repositories
         {
             IQueryable<Room> query = _dbSet;
 
-            query.Include(room => room.User)
+            query.Include(room => room.Host)
                  .Include(room => room.Topic);
 
             if (!string.IsNullOrEmpty(searchQuery))
             {
                 query = query.Where(room =>
                             room.Name.Contains(searchQuery) ||
-                            room.User.UserName.Contains(searchQuery) ||
+                            room.Host.UserName.Contains(searchQuery) ||
                             room.Topic.Name.Contains(searchQuery));
             }
 

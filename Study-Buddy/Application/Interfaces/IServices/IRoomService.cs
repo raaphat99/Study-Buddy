@@ -12,6 +12,7 @@ namespace Application.Interfaces.IServices
     {
         Task<RoomDto> GetByIdAsync(int id);
         Task<IEnumerable<RoomDto>> GetAllRoomsWithDetailsAsync();
+        Task<ChatRoomDto> GetChatRoomDetailsAsync(int id);
         Task<IEnumerable<RoomDto>> FilterRoomsAsync(string searchQuery);
         Task CreateAsync(RoomCreateDto roomDto);
         Task UpdateAsync(int id, RoomCreateDto roomDto, string loggedUserId);

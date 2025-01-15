@@ -42,7 +42,7 @@ namespace Presentation.Controllers
             {
                 // Register the user and create a cookie for them 
                 await _signInManager.SignInAsync(newUser, false);
-                return RedirectToAction("Index", "Home");
+                return RedirectToAction("Index", "Room");
 
             }
             else
@@ -86,7 +86,7 @@ namespace Presentation.Controllers
                 {
                     // Log the user in and create a cookie
                     await _signInManager.SignInAsync(user, loginVM.RememberMe);
-                    return RedirectToAction("Index", "Home");
+                    return RedirectToAction("Index", "Room");
                 }
 
             }
@@ -97,7 +97,7 @@ namespace Presentation.Controllers
         public async Task<IActionResult> Logout()
         {
             await _signInManager.SignOutAsync();
-            return RedirectToAction("Index", "Home");
+            return RedirectToAction("Index", "Room");
         }
 
         public IActionResult AccessDenied()

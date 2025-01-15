@@ -1,4 +1,5 @@
-﻿using Domain.Models;
+﻿using Application.DTOs.RoomDTOs;
+using Domain.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,6 +10,6 @@ namespace Application.Interfaces.IRepositories
 {
     public interface IMessageRepository : IGenericRepository<Message>
     {
-
+        public Task<IEnumerable<Message>> GetMessagesByRoomIdAsync(int roomId);
     }
 }

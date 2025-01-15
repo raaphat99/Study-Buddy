@@ -7,7 +7,7 @@
     @if (TempData["UnauthorizedAccess"] != null)
     {
         <div class="alert alert-danger">@TempData["UnauthorizedAccess"]</div>
-        <a asp-controller="Home" asp-action="Index">Back to Home Page</a>
+        <a asp-controller="Room" asp-action="Index">Back to Home Page</a>
     }
     else
     {
